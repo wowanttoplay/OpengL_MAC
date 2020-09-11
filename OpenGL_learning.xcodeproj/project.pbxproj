@@ -16,6 +16,7 @@
 		C52F0410250C41AA00C3BF2A /* libGLEW.2.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C52F040F250C41AA00C3BF2A /* libGLEW.2.1.0.dylib */; };
 		C52F0414250C42A600C3BF2A /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C52F0413250C42A600C3BF2A /* GLUT.framework */; };
 		C52F0415250C42BA00C3BF2A /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C52F0411250C41C200C3BF2A /* libglfw.3.3.dylib */; };
+		C52F0419250C44BE00C3BF2A /* libgltools.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C52F0418250C44BE00C3BF2A /* libgltools.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,8 @@
 		C52F040F250C41AA00C3BF2A /* libGLEW.2.1.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.2.1.0.dylib; path = ../../../../../usr/local/Cellar/glew/2.1.0_1/lib/libGLEW.2.1.0.dylib; sourceTree = "<group>"; };
 		C52F0411250C41C200C3BF2A /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../../../../usr/local/Cellar/glfw/3.3.2/lib/libglfw.3.3.dylib; sourceTree = "<group>"; };
 		C52F0413250C42A600C3BF2A /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		C52F0416250C447D00C3BF2A /* libgltools.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgltools.a; path = ../GLTools/build/libgltools.a; sourceTree = "<group>"; };
+		C52F0418250C44BE00C3BF2A /* libgltools.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgltools.dylib; path = ../GLTools/build/libgltools.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C52F0419250C44BE00C3BF2A /* libgltools.dylib in Frameworks */,
 				C52F0415250C42BA00C3BF2A /* libglfw.3.3.dylib in Frameworks */,
 				C52F0414250C42A600C3BF2A /* GLUT.framework in Frameworks */,
 				C52F0410250C41AA00C3BF2A /* libGLEW.2.1.0.dylib in Frameworks */,
@@ -113,6 +117,8 @@
 		C52F040C250C418300C3BF2A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C52F0418250C44BE00C3BF2A /* libgltools.dylib */,
+				C52F0416250C447D00C3BF2A /* libgltools.a */,
 				C52F0413250C42A600C3BF2A /* GLUT.framework */,
 				C52F0411250C41C200C3BF2A /* libglfw.3.3.dylib */,
 				C52F040F250C41AA00C3BF2A /* libGLEW.2.1.0.dylib */,
@@ -375,8 +381,8 @@
 				ENABLE_HARDENED_RUNTIME = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(glew_header)",
-					"$(gltools_header)",
 					"$(glfw_header)",
+					"$(gltools_header)",
 				);
 				INFOPLIST_FILE = OpenGL_learning/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -386,6 +392,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(glew_lib)",
 					"$(glfw_lib)",
+					"$(gltools_lib)",
 					/usr/local/Cellar/glew/2.1.0_1/lib,
 					/usr/local/Cellar/glfw/3.3.2/lib,
 				);
@@ -405,8 +412,8 @@
 				ENABLE_HARDENED_RUNTIME = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(glew_header)",
-					"$(gltools_header)",
 					"$(glfw_header)",
+					"$(gltools_header)",
 				);
 				INFOPLIST_FILE = OpenGL_learning/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -416,6 +423,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(glew_lib)",
 					"$(glfw_lib)",
+					"$(gltools_lib)",
 					/usr/local/Cellar/glew/2.1.0_1/lib,
 					/usr/local/Cellar/glfw/3.3.2/lib,
 				);
