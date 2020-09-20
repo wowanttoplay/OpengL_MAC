@@ -47,6 +47,7 @@
 		C52F0413250C42A600C3BF2A /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		C52F0416250C447D00C3BF2A /* libgltools.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgltools.a; path = ../GLTools/build/libgltools.a; sourceTree = "<group>"; };
 		C52F0418250C44BE00C3BF2A /* libgltools.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgltools.dylib; path = ../GLTools/build/libgltools.dylib; sourceTree = "<group>"; };
+		C52F041A250C48E300C3BF2A /* baseHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = baseHeader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +102,7 @@
 				C52F03F3250C3FC900C3BF2A /* Info.plist */,
 				C52F03F6250C3FC900C3BF2A /* OpenGL_learning.entitlements */,
 				C52F040A250C400000C3BF2A /* main.cpp */,
+				C52F041A250C48E300C3BF2A /* baseHeader.h */,
 			);
 			path = OpenGL_learning;
 			sourceTree = "<group>";
