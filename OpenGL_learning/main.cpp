@@ -11,8 +11,35 @@
 #include <GL/glut.h>            // Windows FreeGlut equivalent
 #endif
 
-GLBatch    triangleBatch;
+class moveAction{
+public:
+    void calculateRatio(int key){
+        if (key == lastAction) {
+            ratio = ratio > 3.0f ? ratio * 1.2 : 3.0f;
+        } else {
+            lastAction = key;
+            ratio = 1.0f;
+        }
+    }
+    GLfloat getRatio(){return  ratio;}
+private:
+    int lastAction;
+    GLfloat ratio = 1.0f;
+};
+
+GLBatch    squareBatch;
 GLShaderManager    shaderManager;
+moveAction      action;
+
+const GLfloat blockSize = 0.1f;
+GLfloat vVerts[] = {
+    -blockSize, -blockSize, 0.0f,
+    blockSize, -blockSize, 0.0f,
+    blockSize, blockSize, 0.0f,
+    -blockSize, blockSize, 0.0f
+};
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Window has changed size, or has just been created. In either case, we need
@@ -23,24 +50,66 @@ void ChangeSize(int w, int h)
 }
 
 
+void SpecialKeys(int key, int x, int y)
+{
+    action.calculateRatio(key);
+    GLfloat stepSize = 0.025f * action.getRatio();
+    
+    GLfloat blockX = vVerts[0];   // Upper left X
+    GLfloat blockY = vVerts[7];  // Upper left Y
+    
+    if(key == GLUT_KEY_UP)
+        blockY += stepSize;
+    
+    if(key == GLUT_KEY_DOWN)
+        blockY -= stepSize;
+    
+    if(key == GLUT_KEY_LEFT)
+        blockX -= stepSize;
+    
+    if(key == GLUT_KEY_RIGHT)
+        blockX += stepSize;
+    
+    // Collision detection
+    if(blockX < -1.0f) blockX = -1.0f;
+    if(blockX > (1.0f - blockSize * 2)) blockX = 1.0f - blockSize * 2;;
+    if(blockY < -1.0f + blockSize * 2)  blockY = -1.0f + blockSize * 2;
+    if(blockY > 1.0f) blockY = 1.0f;
+    
+    // Recalculate vertex positions
+    vVerts[0] = blockX;
+    vVerts[1] = blockY - blockSize*2;
+    
+    vVerts[3] = blockX + blockSize*2;
+    vVerts[4] = blockY - blockSize*2;
+    
+    vVerts[6] = blockX + blockSize*2;
+    vVerts[7] = blockY;
+    
+    vVerts[9] = blockX;
+    vVerts[10] = blockY;
+    
+    squareBatch.CopyVertexData3f(vVerts);
+    
+    glutPostRedisplay();
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // This function does any needed initialization on the rendering context.
 // This is the first opportunity to do any OpenGL related tasks.
 void SetupRC()
 {
-    // Blue background
-    glClearColor(0.0f, 0.0f, 1.0f, 1.0f );
+    // light gray background
+    glClearColor(0.75f, 0.75f, 0.75f, 1.0f );
     
     shaderManager.InitializeStockShaders();
     
-    // Load up a triangle
-    GLfloat vVerts[] = { -0.5f, 0.0f, 0.0f,
-        0.5f, 0.0f, 0.0f,
-        0.0f, 0.5f, 0.0f };
+    // Load up a square
     
-    triangleBatch.Begin(GL_TRIANGLES, 3);
-    triangleBatch.CopyVertexData3f(vVerts);
-    triangleBatch.End();
+    squareBatch.Begin(GL_TRIANGLE_FAN, 4);
+    squareBatch.CopyVertexData3f(vVerts);
+    squareBatch.End();
 }
 
 
@@ -54,7 +123,7 @@ void RenderScene(void)
     
     GLfloat vRed[] = { 1.0f, 0.0f, 0.0f, 1.0f };
     shaderManager.UseStockShader(GLT_SHADER_IDENTITY, vRed);
-    triangleBatch.Draw();
+    squareBatch.Draw();
     
     // Perform the buffer swap to display back buffer
     glutSwapBuffers();
@@ -73,6 +142,7 @@ int main(int argc, char* argv[])
     glutCreateWindow("Triangle");
     glutReshapeFunc(ChangeSize);
     glutDisplayFunc(RenderScene);
+    glutSpecialFunc(SpecialKeys);
     
     GLenum err = glewInit();
     if (GLEW_OK != err) {
