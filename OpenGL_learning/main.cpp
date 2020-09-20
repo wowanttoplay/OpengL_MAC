@@ -91,7 +91,13 @@ void SpecialKeys(int key, int x, int y)
     
     squareBatch.CopyVertexData3f(vVerts);
     
-    glutPostRedisplay();
+//    glutPostRedisplay();
+}
+
+void AutoMove()
+{
+    int key = rand() % 4 + 100;
+    SpecialKeys(key, 0, 0);
 }
 
 
@@ -127,6 +133,9 @@ void RenderScene(void)
     
     // Perform the buffer swap to display back buffer
     glutSwapBuffers();
+    
+    AutoMove();
+    glutPostRedisplay();
 }
 
 
