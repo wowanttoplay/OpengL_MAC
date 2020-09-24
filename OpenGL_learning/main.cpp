@@ -1,16 +1,10 @@
-// ModelviewProjection.cpp
-// OpenGL SuperBible
-// Demonstrates OpenGL the ModelviewProjection matrix
-// Program by Richard S. Wright Jr.
-#include <GLTools.h>    // OpenGL toolkit
-#include <GLMatrixStack.h>
-#include <GLFrame.h>
-#include <GLFrustum.h>
-#include <GLGeometryTransform.h>
-#include <GLBatch.h>
-#include <StopWatch.h>
+// Move.cpp
+// Move a Block based on arrow key movements
 
-#include <math.h>
+#include <GLTools.h>    // OpenGL toolkit
+#include <GLShaderManager.h>
+#include <math3d.h>
+
 #ifdef __APPLE__
 #include <glut/glut.h>
 #else
@@ -18,109 +12,134 @@
 #include <GL/glut.h>
 #endif
 
-
-// Global view frustum class
-GLFrustum           viewFrustum;
-
-// The shader manager
-GLShaderManager     shaderManager;
-
-// The torus
-GLTriangleBatch     torusBatch;
+GLBatch    squareBatch;
+GLShaderManager    shaderManager;
 
 
-// Set up the viewport and the projection matrix
-void ChangeSize(int w, int h)
-{
-    // Prevent a divide by zero
-    if(h == 0)
-        h = 1;
-    
-    // Set Viewport to window dimensions
-    glViewport(0, 0, w, h);
-    
-    viewFrustum.SetPerspective(35.0f, float(w)/float(h), 1.0f, 1000.0f);
-}
+GLfloat blockSize = 0.1f;
+GLfloat vVerts[] = { -blockSize, -blockSize, 0.0f,
+                      blockSize, -blockSize, 0.0f,
+                      blockSize,  blockSize, 0.0f,
+                     -blockSize,  blockSize, 0.0f};
+
+GLfloat xPos = 0.0f;
+GLfloat yPos = 0.0f;
 
 
-// Called to draw scene
-void RenderScene(void)
-{
-    // Set up time based animation
-    static CStopWatch rotTimer;
-    float yRot = rotTimer.GetElapsedSeconds() * 60.0f;
-    
-    // Clear the window and the depth buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    // Matrix Variables
-    M3DMatrix44f mTranslate, mRotate, mModelview, mModelViewProjection;
-    
-    // Create a translation matrix to move the torus back and into sight
-    m3dTranslationMatrix44(mTranslate, 0.3f, 0.2f, -6.5f);
-    
-    // Create a rotation matrix based on the current value of yRot
-    m3dRotationMatrix44(mRotate, m3dDegToRad(yRot), 0.0f, 1.0f, 0.0f);
-    
-    // Add the rotation to the translation, store the result in mModelView
-    m3dMatrixMultiply44(mModelview, mTranslate, mRotate);
-    
-    // Add the modelview matrix to the projection matrix,
-    // the final matrix is the ModelViewProjection matrix.
-    m3dMatrixMultiply44(mModelViewProjection, viewFrustum.GetProjectionMatrix(),mModelview);
-    
-    // Pass this completed matrix to the shader, and render the torus
-    GLfloat vBlack[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    shaderManager.UseStockShader(GLT_SHADER_FLAT, mModelViewProjection, vBlack);
-    torusBatch.Draw();
-    
-    
-    // Swap buffers, and immediately refresh
-    glutSwapBuffers();
-    glutPostRedisplay();
-}
-
-// This function does any needed initialization on the rendering
-// context.
+///////////////////////////////////////////////////////////////////////////////
+// This function does any needed initialization on the rendering context.
+// This is the first opportunity to do any OpenGL related tasks.
 void SetupRC()
-{
+    {
     // Black background
-    glClearColor(0.8f, 0.8f, 0.8f, 1.0f );
-    
-    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f );
     
     shaderManager.InitializeStockShaders();
-    
-    // This makes a torus
-    gltMakeTorus(torusBatch, 0.4f, 0.15f, 30, 30);
-    
-    
-    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-}
 
+    // Load up a triangle
+    squareBatch.Begin(GL_TRIANGLE_FAN, 4);
+    squareBatch.CopyVertexData3f(vVerts);
+    squareBatch.End();
+    }
+
+// Respond to arrow keys by moving the camera frame of reference
+void SpecialKeys(int key, int x, int y)
+    {
+    GLfloat stepSize = 0.025f;
+
+
+    if(key == GLUT_KEY_UP)
+        yPos += stepSize;
+
+    if(key == GLUT_KEY_DOWN)
+        yPos -= stepSize;
+    
+    if(key == GLUT_KEY_LEFT)
+        xPos -= stepSize;
+
+    if(key == GLUT_KEY_RIGHT)
+        xPos += stepSize;
+
+    // Collision detection
+    if(xPos < (-1.0f + blockSize)) xPos = -1.0f + blockSize;
+    
+    if(xPos > (1.0f - blockSize)) xPos = 1.0f - blockSize;
+    
+    if(yPos < (-1.0f + blockSize))  yPos = -1.0f + blockSize;
+    
+    if(yPos > (1.0f - blockSize)) yPos = 1.0f - blockSize;
+
+    glutPostRedisplay();
+    }
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Called to draw scene
+void RenderScene(void)
+    {
+    // Clear the window with current clearing color
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    GLfloat vRed[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    
+    M3DMatrix44f mFinalTransform, mTranslationMatrix, mRotationMatrix;
+    
+    // Just Translate
+    m3dTranslationMatrix44(mTranslationMatrix, xPos, yPos, 0.0f);
+    
+    // Rotate 5 degrees evertyime we redraw
+    static float yRot = 0.0f;
+    yRot += 5.0f;
+    m3dRotationMatrix44(mRotationMatrix, m3dDegToRad(yRot), 0.0f, 0.0f, 1.0f);
+    
+    m3dMatrixMultiply44(mFinalTransform, mTranslationMatrix, mRotationMatrix);
+    
+    
+    shaderManager.UseStockShader(GLT_SHADER_FLAT, mFinalTransform, vRed);
+    squareBatch.Draw();
+
+    // Perform the buffer swap
+    glutSwapBuffers();
+    }
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Window has changed size, or has just been created. In either case, we need
+// to use the window dimensions to set the viewport and the projection matrix.
+void ChangeSize(int w, int h)
+    {
+    glViewport(0, 0, w, h);
+    }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Main entry point for GLUT based programs
 int main(int argc, char* argv[])
-{
+    {
     gltSetWorkingDirectory(argv[0]);
     
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
-    glutInitWindowSize(800, 600);
-    glutCreateWindow("ModelViewProjection Example");
-    glutReshapeFunc(ChangeSize);
-    glutDisplayFunc(RenderScene);
-    
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+    glutInitWindowSize(600, 600);
+    glutCreateWindow("Move Block with Arrow Keys");
     
     GLenum err = glewInit();
-    if (GLEW_OK != err) {
-        fprintf(stderr, "GLEW Error: %s\n", glewGetErrorString(err));
+    if (GLEW_OK != err)
+        {
+        // Problem: glewInit failed, something is seriously wrong.
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
         return 1;
-    }
+        }
     
+    glutReshapeFunc(ChangeSize);
+    glutDisplayFunc(RenderScene);
+    glutSpecialFunc(SpecialKeys);
+
     SetupRC();
-    
+
     glutMainLoop();
     return 0;
-}
+    }
