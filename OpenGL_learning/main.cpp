@@ -1,141 +1,101 @@
-// Triangle.cpp
-// Our first OpenGL program that will just draw a triangle on the screen.
+// ModelviewProjection.cpp
+// OpenGL SuperBible
+// Demonstrates OpenGL the ModelviewProjection matrix
+// Program by Richard S. Wright Jr.
+#include <GLTools.h>    // OpenGL toolkit
+#include <GLMatrixStack.h>
+#include <GLFrame.h>
+#include <GLFrustum.h>
+#include <GLGeometryTransform.h>
+#include <GLBatch.h>
+#include <StopWatch.h>
 
-#include <GLTools.h>            // OpenGL toolkit
-#include <GLShaderManager.h>    // Shader Manager Class
-
+#include <math.h>
 #ifdef __APPLE__
-#include <glut/glut.h>          // OS X version of GLUT
+#include <glut/glut.h>
 #else
 #define FREEGLUT_STATIC
-#include <GL/glut.h>            // Windows FreeGlut equivalent
+#include <GL/glut.h>
 #endif
 
-class moveAction{
-public:
-    void calculateRatio(int key){
-        if (key == lastAction) {
-            ratio = ratio > 3.0f ? ratio * 1.2 : 3.0f;
-        } else {
-            lastAction = key;
-            ratio = 1.0f;
-        }
-    }
-    GLfloat getRatio(){return  ratio;}
-private:
-    int lastAction;
-    GLfloat ratio = 1.0f;
-};
 
-GLBatch    squareBatch;
-GLShaderManager    shaderManager;
-moveAction      action;
+// Global view frustum class
+GLFrustum           viewFrustum;
 
-const GLfloat blockSize = 0.1f;
-GLfloat vVerts[] = {
-    -blockSize, -blockSize, 0.0f,
-    blockSize, -blockSize, 0.0f,
-    blockSize, blockSize, 0.0f,
-    -blockSize, blockSize, 0.0f
-};
+// The shader manager
+GLShaderManager     shaderManager;
+
+// The torus
+GLTriangleBatch     torusBatch;
 
 
-
-///////////////////////////////////////////////////////////////////////////////
-// Window has changed size, or has just been created. In either case, we need
-// to use the window dimensions to set the viewport and the projection matrix.
+// Set up the viewport and the projection matrix
 void ChangeSize(int w, int h)
 {
+    // Prevent a divide by zero
+    if(h == 0)
+        h = 1;
+    
+    // Set Viewport to window dimensions
     glViewport(0, 0, w, h);
+    
+    viewFrustum.SetPerspective(35.0f, float(w)/float(h), 1.0f, 1000.0f);
 }
 
 
-void SpecialKeys(int key, int x, int y)
-{
-    action.calculateRatio(key);
-    GLfloat stepSize = 0.025f * action.getRatio();
-    
-    GLfloat blockX = vVerts[0];   // Upper left X
-    GLfloat blockY = vVerts[7];  // Upper left Y
-    
-    if(key == GLUT_KEY_UP)
-        blockY += stepSize;
-    
-    if(key == GLUT_KEY_DOWN)
-        blockY -= stepSize;
-    
-    if(key == GLUT_KEY_LEFT)
-        blockX -= stepSize;
-    
-    if(key == GLUT_KEY_RIGHT)
-        blockX += stepSize;
-    
-    // Collision detection
-    if(blockX < -1.0f) blockX = -1.0f;
-    if(blockX > (1.0f - blockSize * 2)) blockX = 1.0f - blockSize * 2;;
-    if(blockY < -1.0f + blockSize * 2)  blockY = -1.0f + blockSize * 2;
-    if(blockY > 1.0f) blockY = 1.0f;
-    
-    // Recalculate vertex positions
-    vVerts[0] = blockX;
-    vVerts[1] = blockY - blockSize*2;
-    
-    vVerts[3] = blockX + blockSize*2;
-    vVerts[4] = blockY - blockSize*2;
-    
-    vVerts[6] = blockX + blockSize*2;
-    vVerts[7] = blockY;
-    
-    vVerts[9] = blockX;
-    vVerts[10] = blockY;
-    
-    squareBatch.CopyVertexData3f(vVerts);
-    
-//    glutPostRedisplay();
-}
-
-void AutoMove()
-{
-    int key = rand() % 4 + 100;
-    SpecialKeys(key, 0, 0);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-// This function does any needed initialization on the rendering context.
-// This is the first opportunity to do any OpenGL related tasks.
-void SetupRC()
-{
-    // light gray background
-    glClearColor(0.75f, 0.75f, 0.75f, 1.0f );
-    
-    shaderManager.InitializeStockShaders();
-    
-    // Load up a square
-    
-    squareBatch.Begin(GL_TRIANGLE_FAN, 4);
-    squareBatch.CopyVertexData3f(vVerts);
-    squareBatch.End();
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
 // Called to draw scene
 void RenderScene(void)
 {
-    // Clear the window with current clearing color
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    // Set up time based animation
+    static CStopWatch rotTimer;
+    float yRot = rotTimer.GetElapsedSeconds() * 60.0f;
     
-    GLfloat vRed[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-    shaderManager.UseStockShader(GLT_SHADER_IDENTITY, vRed);
-    squareBatch.Draw();
+    // Clear the window and the depth buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    // Perform the buffer swap to display back buffer
+    // Matrix Variables
+    M3DMatrix44f mTranslate, mRotate, mModelview, mModelViewProjection;
+    
+    // Create a translation matrix to move the torus back and into sight
+    m3dTranslationMatrix44(mTranslate, 0.3f, 0.2f, -6.5f);
+    
+    // Create a rotation matrix based on the current value of yRot
+    m3dRotationMatrix44(mRotate, m3dDegToRad(yRot), 0.0f, 1.0f, 0.0f);
+    
+    // Add the rotation to the translation, store the result in mModelView
+    m3dMatrixMultiply44(mModelview, mTranslate, mRotate);
+    
+    // Add the modelview matrix to the projection matrix,
+    // the final matrix is the ModelViewProjection matrix.
+    m3dMatrixMultiply44(mModelViewProjection, viewFrustum.GetProjectionMatrix(),mModelview);
+    
+    // Pass this completed matrix to the shader, and render the torus
+    GLfloat vBlack[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    shaderManager.UseStockShader(GLT_SHADER_FLAT, mModelViewProjection, vBlack);
+    torusBatch.Draw();
+    
+    
+    // Swap buffers, and immediately refresh
     glutSwapBuffers();
-    
-    AutoMove();
     glutPostRedisplay();
+}
+
+// This function does any needed initialization on the rendering
+// context.
+void SetupRC()
+{
+    // Black background
+    glClearColor(0.8f, 0.8f, 0.8f, 1.0f );
+    
+    glEnable(GL_DEPTH_TEST);
+    
+    shaderManager.InitializeStockShaders();
+    
+    // This makes a torus
+    gltMakeTorus(torusBatch, 0.4f, 0.15f, 30, 30);
+    
+    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 }
 
 
@@ -148,10 +108,10 @@ int main(int argc, char* argv[])
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
     glutInitWindowSize(800, 600);
-    glutCreateWindow("Triangle");
+    glutCreateWindow("ModelViewProjection Example");
     glutReshapeFunc(ChangeSize);
     glutDisplayFunc(RenderScene);
-    glutSpecialFunc(SpecialKeys);
+    
     
     GLenum err = glewInit();
     if (GLEW_OK != err) {
