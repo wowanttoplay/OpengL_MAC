@@ -17,6 +17,9 @@
 		C52F0414250C42A600C3BF2A /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C52F0413250C42A600C3BF2A /* GLUT.framework */; };
 		C52F0415250C42BA00C3BF2A /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C52F0411250C41C200C3BF2A /* libglfw.3.3.dylib */; };
 		C52F0419250C44BE00C3BF2A /* libgltools.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C52F0418250C44BE00C3BF2A /* libgltools.dylib */; };
+		C566E3D4252F3FD700302240 /* brick.tga in Resources */ = {isa = PBXBuildFile; fileRef = C566E3D1252F3FD700302240 /* brick.tga */; };
+		C566E3D5252F3FD700302240 /* floor.tga in Resources */ = {isa = PBXBuildFile; fileRef = C566E3D2252F3FD700302240 /* floor.tga */; };
+		C566E3D6252F3FD700302240 /* ceiling.tga in Resources */ = {isa = PBXBuildFile; fileRef = C566E3D3252F3FD700302240 /* ceiling.tga */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +51,9 @@
 		C52F0416250C447D00C3BF2A /* libgltools.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgltools.a; path = ../GLTools/build/libgltools.a; sourceTree = "<group>"; };
 		C52F0418250C44BE00C3BF2A /* libgltools.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgltools.dylib; path = ../GLTools/build/libgltools.dylib; sourceTree = "<group>"; };
 		C52F041A250C48E300C3BF2A /* baseHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = baseHeader.h; sourceTree = "<group>"; };
+		C566E3D1252F3FD700302240 /* brick.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = brick.tga; sourceTree = "<group>"; };
+		C566E3D2252F3FD700302240 /* floor.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = floor.tga; sourceTree = "<group>"; };
+		C566E3D3252F3FD700302240 /* ceiling.tga */ = {isa = PBXFileReference; lastKnownFileType = file; path = ceiling.tga; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +101,9 @@
 		C52F03E7250C3FC800C3BF2A /* OpenGL_learning */ = {
 			isa = PBXGroup;
 			children = (
+				C566E3D1252F3FD700302240 /* brick.tga */,
+				C566E3D3252F3FD700302240 /* ceiling.tga */,
+				C566E3D2252F3FD700302240 /* floor.tga */,
 				C52F03EB250C3FC800C3BF2A /* ViewController.h */,
 				C52F03EC250C3FC800C3BF2A /* ViewController.m */,
 				C52F03EE250C3FC900C3BF2A /* Assets.xcassets */,
@@ -210,7 +219,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				C52F03EF250C3FC900C3BF2A /* Assets.xcassets in Resources */,
+				C566E3D5252F3FD700302240 /* floor.tga in Resources */,
 				C52F03F2250C3FC900C3BF2A /* Main.storyboard in Resources */,
+				C566E3D6252F3FD700302240 /* ceiling.tga in Resources */,
+				C566E3D4252F3FD700302240 /* brick.tga in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
